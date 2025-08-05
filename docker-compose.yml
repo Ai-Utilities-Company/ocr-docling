@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  ocr-api:
+    build: .
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      # CORS
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://localhost:2137,http://localhost:5173}
+      
+      # Serwer
+      - HOST=${HOST:-0.0.0.0}
+      - PORT=${PORT:-8000}
+      
+      # Logowanie
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      
+      # API
+      - API_TITLE=${API_TITLE:-Docling OCR API}
+      - API_DESCRIPTION=${API_DESCRIPTION:-API do przetwarzania OCR i wykrywania języka przy użyciu Docling}
+      - API_VERSION=${API_VERSION:-1.0.0}
+      
+      # Pliki
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE:-52428800}
+      - PROCESSING_TIMEOUT=${PROCESSING_TIMEOUT:-300}
+      
+      # Środowisko
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DEBUG=${DEBUG:-false}
+    volumes:
+      - ./app:/app/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3 
