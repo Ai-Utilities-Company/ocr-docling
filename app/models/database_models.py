@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from typing import Optional
+from enum import Enum
 from sqlalchemy import (
     create_engine,
     Column,
@@ -107,7 +108,7 @@ class UserFiles(Base):
     file_jobs = relationship("FileJobs", back_populates="file")
 
 
-class FileJobStatus(Base):
+class FileJobStatus(Enum):
     """File job status enum values"""
 
     PENDING = "PENDING"
@@ -118,7 +119,7 @@ class FileJobStatus(Base):
     CANCELLED = "CANCELLED"
 
 
-class FileJobError(Base):
+class FileJobError(Enum):
     """File job error enum values"""
 
     DOWNLOAD_FAILED = "DOWNLOAD_FAILED"

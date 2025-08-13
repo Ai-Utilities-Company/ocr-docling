@@ -124,7 +124,8 @@ class ConfigManager:
         return AppConfig(
             environment=Environment.DEVELOPMENT,
             database=DatabaseConfig(
-                url="postgresql://csai_user:8akWs89Od5O82wsZfkKzse3c@localhost:5445/csai_db",
+                # Domyślnie używamy SQLite w development, aby nie wymagać lokalnego Postgresa
+                url="sqlite:///ocr_documents.db",
                 echo=True,  # Enable SQL logging in development
             ),
             server=ServerConfig(
