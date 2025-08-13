@@ -40,7 +40,7 @@ export default function FileUploader() {
   return (
     <div className="w-full max-w-2xl rounded-lg border border-black/10 dark:border-white/15 p-6 bg-white dark:bg-black/20">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">OCR pliku (PDF/obraz)</h2>
+        <h2 className="text-xl font-semibold">File OCR (PDF/Image)</h2>
         <span
           className={`text-xs px-2 py-1 rounded-md border ${
             status === "PROCESSED"
@@ -71,41 +71,41 @@ export default function FileUploader() {
             disabled={!selectedFile || isLoading}
             className="inline-flex items-center justify-center rounded-md bg-black text-white dark:bg-white dark:text-black px-4 py-2 text-sm disabled:opacity-50"
           >
-            {isLoading ? "Przetwarzanie..." : "Wyślij i przetwórz"}
+          {isLoading ? "Processing..." : "Upload and process"}
           </button>
           {selectedFile && (
             <span className="text-xs text-black/70 dark:text-white/70">
-              Wybrano: {selectedFile.name}
+              Selected: {selectedFile.name}
             </span>
           )}
         </div>
       </form>
 
       {error && (
-        <div className="mt-4 text-sm text-red-600">Błąd: {error}</div>
+        <div className="mt-4 text-sm text-red-600">Error: {error}</div>
       )}
 
       {result && (
         <div className="mt-6 space-y-3">
-          <h3 className="text-lg font-medium">Wynik</h3>
+          <h3 className="text-lg font-medium">Result</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
             <div>
-              <span className="font-medium">Plik:</span> {result.metadata.filename}
+              <span className="font-medium">File:</span> {result.metadata.filename}
             </div>
             <div>
-              <span className="font-medium">Rozmiar:</span> {(result.metadata.file_size / 1024).toFixed(1)} KB
+              <span className="font-medium">Size:</span> {(result.metadata.file_size / 1024).toFixed(1)} KB
             </div>
             <div>
-              <span className="font-medium">Strony:</span> {result.metadata.page_count}
+              <span className="font-medium">Pages:</span> {result.metadata.page_count}
             </div>
             <div>
-              <span className="font-medium">Język:</span> {result.language_detection.language_name} ({result.language_detection.language_code})
+              <span className="font-medium">Language:</span> {result.language_detection.language_name} ({result.language_detection.language_code})
             </div>
             <div>
-              <span className="font-medium">Słowa:</span> {result.word_count}
+              <span className="font-medium">Words:</span> {result.word_count}
             </div>
             <div>
-              <span className="font-medium">Znaki:</span> {result.text_length}
+              <span className="font-medium">Characters:</span> {result.text_length}
             </div>
           </div>
           <div>

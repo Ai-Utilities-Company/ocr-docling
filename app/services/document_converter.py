@@ -7,16 +7,39 @@ from typing import Optional, Tuple
 from pathlib import Path
 from urllib.parse import urlparse
 from datetime import datetime
-from docling.document_converter import DocumentConverter
-from docling.datamodel.base_models import InputFormat
-from docling.datamodel.pipeline_options import PdfPipelineOptions
-from docling.document_converter import PdfFormatOption
 from app.config import logger, ALLOWED_EXTENSIONS
 from app.services.database_service import database_service, FileJobStatus, FileJobError
 from app.models.database_models import (
     FileJobStatus as StatusEnum,
     FileJobError as ErrorEnum,
 )
+
+# Wymuszenie pracy na CPU dla środowisk bez GPU (Windows/dev)
+# 1) Ukryj CUDA dla procesów potomnych i bibliotek
+os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
+
+# 2) Zaimplementuj bezpieczny fallback dla torch.load oraz wyłącz wykrywanie CUDA,
+#    zanim cokolwiek zaimportuje Docling i jego modele
+try:
+	import torch  # type: ignore
+
+	if hasattr(torch, "cuda") and torch.cuda.device_count() == 0:
+		_original_torch_load = torch.load
+
+		def _cpu_load(*args, **kwargs):
+			if "map_location" not in kwargs or kwargs["map_location"] is None:
+				kwargs["map_location"] = "cpu"
+			return _original_torch_load(*args, **kwargs)
+
+		# Wymuś map_location='cpu' przy odczycie wag zapisanych na CUDA
+		torch.load = _cpu_load  # type: ignore
+
+		# Zgłoś brak CUDA dla mechanizmów autodetekcji
+		if callable(getattr(torch.cuda, "is_available", None)):
+			torch.cuda.is_available = lambda: False  # type: ignore
+except Exception:
+	# Ciche pominięcie jeśli torch nie jest dostępny na tym etapie
+	pass
 
 
 class DocumentConverterService:
@@ -25,9 +48,14 @@ class DocumentConverterService:
     def __init__(self):
         self._converter = None
 
-    def _get_converter(self) -> DocumentConverter:
+    def _get_converter(self) -> 'DocumentConverter':
         """Initializes and configures document converter with OCR capabilities"""
         if self._converter is None:
+            # Importy docling przeniesione tu, aby zadziałały ustawienia środowiska powyżej
+            from docling.document_converter import DocumentConverter, PdfFormatOption
+            from docling.datamodel.base_models import InputFormat
+            from docling.datamodel.pipeline_options import PdfPipelineOptions
+
             pipeline_options = PdfPipelineOptions()
             pipeline_options.do_ocr = True  # Enable OCR
             pipeline_options.do_table_structure = True
